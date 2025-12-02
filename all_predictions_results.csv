@@ -1,0 +1,32 @@
+triad_index,prediction_label,ground_truth_label,is_correct,explanation,summary_path
+1063,B,B,True,"PDFs contain extra articles (Critique: 1/2, Response: 1/3)",data/triad_samples_batch/triad_1063/final_outputs/summary.json
+118,B,IV,False,"PDFs contain extra articles (Critique: 1/2, Response: 1/3)",data/triad_samples_batch/triad_118/final_outputs/summary.json
+1824,IV,IV,True,Papers are not debating with one another,data/triad_samples_batch/triad_1824/final_outputs/summary.json
+1841,B,B,True,"PDFs contain extra articles (Critique: 1/2, Response: 1/2)",data/triad_samples_batch/triad_1841/final_outputs/summary.json
+2661,IV,IV,True,Papers are not debating with one another,data/triad_samples_batch/triad_2661/final_outputs/summary.json
+2808,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_2808/final_outputs/summary.json
+2847,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_2847/final_outputs/summary.json
+3076,B,B,True,"PDFs contain extra articles (Critique: 1/3, Response: 1/3)",data/triad_samples_batch/triad_3076/final_outputs/summary.json
+3897,B,B,True,"PDFs contain extra articles (Critique: 1/2, Response: 1/2)",data/triad_samples_batch/triad_3897/final_outputs/summary.json
+3938,B,B,True,"PDFs contain extra articles (Critique: 1/3, Response: 1/1)",data/triad_samples_batch/triad_3938/final_outputs/summary.json
+4778,IV,IV,True,Papers are not debating with one another,data/triad_samples_batch/triad_4778/final_outputs/summary.json
+50,P,IV,False,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_50/final_outputs/summary.json
+515,B,B,True,"PDFs contain extra articles (Critique: 0/0, Response: 1/3)",data/triad_samples_batch/triad_515/final_outputs/summary.json
+5861,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_5861/final_outputs/summary.json
+6428,B,IV,False,"PDFs contain extra articles (Critique: 1/1, Response: 1/2)",data/triad_samples_batch/triad_6428/final_outputs/summary.json
+6495,IV,IV,True,Papers are not debating with one another,data/triad_samples_batch/triad_6495/final_outputs/summary.json
+6832,B,B,True,"PDFs contain extra articles (Critique: 1/3, Response: 1/3)",data/triad_samples_batch/triad_6832/final_outputs/summary.json
+6925,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_6925/final_outputs/summary.json
+6981,B,B,True,"PDFs contain extra articles (Critique: 1/2, Response: 1/2)",data/triad_samples_batch/triad_6981/final_outputs/summary.json
+7318,P,IV,False,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_7318/final_outputs/summary.json
+7350,P,IV,False,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_7350/final_outputs/summary.json
+7358,B,B,True,"PDFs contain extra articles (Critique: 1/2, Response: 1/2)",data/triad_samples_batch/triad_7358/final_outputs/summary.json
+7786,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_7786/final_outputs/summary.json
+7855,B,B,True,"PDFs contain extra articles (Critique: 1/3, Response: 1/4)",data/triad_samples_batch/triad_7855/final_outputs/summary.json
+7917,B,IV,False,"PDFs contain extra articles (Critique: 1/3, Response: 1/3)",data/triad_samples_batch/triad_7917/final_outputs/summary.json
+8062,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_8062/final_outputs/summary.json
+8776,P,IV,False,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_8776/final_outputs/summary.json
+9283,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_9283/final_outputs/summary.json
+9309,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_9309/final_outputs/summary.json
+9359,B,B,True,"PDFs contain extra articles (Critique: 1/2, Response: 1/2)",data/triad_samples_batch/triad_9359/final_outputs/summary.json
+9605,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_9605/final_outputs/summary.json

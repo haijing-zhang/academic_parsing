@@ -46,7 +46,8 @@ The text below may contain multiple short scientific letters or replies merged t
 For each distinct article, extract:
 - title
 - authors (as a comma-separated string)
-- main body text
+- main body text (KEEP ALL IN-TEXT CITATIONS INTACT, e.g., (Author, Year) or [1])
+- references (list of reference strings from the bibliography/reference section)
 
 Return JSON array with one object per article.
 
@@ -56,13 +57,17 @@ Format:
         {
             "title": "extracted title",
             "authors": "author1, author2, author3",
-            "body": "main body text"
+            "body": "main body text with citations preserved",
+            "references": ["reference 1", "reference 2", ...]
         }
     ]
 }
 
-If there is only one article, return an array with one object.
-Make sure the JSON is valid and properly formatted.
+IMPORTANT:
+- Keep all in-text citations in the body text exactly as they appear
+- Extract all references from the bibliography/reference section as a separate list
+- If there is only one article, return an array with one object
+- Make sure the JSON is valid and properly formatted
 
 Text:
 """ + text

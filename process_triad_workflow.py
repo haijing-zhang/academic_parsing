@@ -7,6 +7,7 @@ This script orchestrates the entire pipeline:
 3. Extract text from critique and response PDFs
 4. Structure critique/response texts with OpenAI
 5. Analyze relationships between papers
+6. Generate final output files (original, critique, response, summary)
 
 Directory structure for each triad:
 triad_samples/triad_N/
@@ -21,8 +22,13 @@ triad_samples/triad_N/
 ├── openai_structured/                # Structured data (step 4)
 │   ├── critique_*_structured.json
 │   └── response_*_structured.json
-└── relationship_analysis/            # Final analysis (step 5)
-    └── triad_relationship_analysis.json
+├── relationship_analysis/            # Relationship analysis (step 5)
+│   └── triad_relationship_analysis.json
+└── final_outputs/                    # Final outputs (step 6)
+    ├── original_paper_final.json     # Original paper with all sections
+    ├── critique_final.json           # Critique with citations & references
+    ├── response_final.json           # Response with citations & references
+    └── summary.json                  # Summary with metadata & flags
 """
 
 import subprocess
@@ -40,6 +46,7 @@ from xml_preprocessor import extract_metadata_from_xml
 from extract_text_from_pdf import extract_and_save_pdf_text
 from process_triad_with_openai import process_triad_texts
 from analyze_triad_relationships import analyze_triad_relationships, load_json_file
+from generate_final_outputs import generate_all_final_outputs
 
 # Load environment variables
 load_dotenv()
@@ -318,6 +325,22 @@ class TriadProcessor:
             print(f"❌ Error during analysis: {e}")
             return None
 
+    def step6_generate_final_outputs(self) -> bool:
+        """
+        Step 6: Generate all final output files (original, critique, response, summary).
+
+        Returns:
+            True if successful, False otherwise
+        """
+        self.print_section_header("STEP 6: Generate Final Output Files")
+
+        try:
+            generate_all_final_outputs(self.triad_dir)
+            return True
+        except Exception as e:
+            print(f"❌ Error generating final outputs: {e}")
+            return False
+
     def run_full_workflow(self, start_from_step: int = 1) -> bool:
         """
         Run the complete workflow from start to finish.
@@ -376,6 +399,13 @@ class TriadProcessor:
             analysis_result = self.step5_analyze_relationships()
             if not analysis_result:
                 print("\n❌ Workflow failed at Step 5")
+                return False
+
+        # Step 6: Generate final outputs
+        if start_from_step <= 6:
+            final_outputs_success = self.step6_generate_final_outputs()
+            if not final_outputs_success:
+                print("\n❌ Workflow failed at Step 6")
                 return False
 
         # Success!
@@ -456,9 +486,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "--start-from",
         type=int,
-        choices=[1, 2, 3, 4, 5],
+        choices=[1, 2, 3, 4, 5, 6],
         default=1,
-        help="Which step to start from (1-5). Default: 1"
+        help="Which step to start from (1-6). Default: 1"
     )
     parser.add_argument(
         "--grobid-url",

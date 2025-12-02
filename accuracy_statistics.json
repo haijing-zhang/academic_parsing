@@ -1,0 +1,20 @@
+{
+  "total_triads": 31,
+  "correct_predictions": 24,
+  "false_predictions": 7,
+  "accuracy_rate": 77.41935483870968,
+  "label_breakdown": {
+    "P": {
+      "total": 9,
+      "correct": 9
+    },
+    "B": {
+      "total": 11,
+      "correct": 11
+    },
+    "IV": {
+      "total": 11,
+      "correct": 4
+    }
+  }
+}

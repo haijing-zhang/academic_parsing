@@ -157,12 +157,86 @@ def extract_abstract(root: ET.Element, ns: Dict[str, str]) -> str:
     return ""
 
 
-def extract_metadata_from_xml(xml_path: Path) -> Dict[str, any]:
+def extract_sections(root: ET.Element, ns: Dict[str, str]) -> Dict[str, str]:
+    """
+    Extract all academic sections from TEI XML body.
+
+    Args:
+        root: XML root element
+        ns: Namespace dictionary
+
+    Returns:
+        Dictionary mapping section titles to their content
+    """
+    sections = {}
+
+    # Find all div elements in the body
+    body_element = root.find(".//tei:text/tei:body", ns)
+
+    if body_element is None:
+        return sections
+
+    # Extract all divs (sections)
+    div_elements = body_element.findall(".//tei:div", ns)
+
+    for div in div_elements:
+        # Get section heading
+        head_elem = div.find("tei:head", ns)
+
+        if head_elem is not None:
+            section_title = ''.join(head_elem.itertext()).strip()
+            section_title = ' '.join(section_title.split())
+
+            # Get all paragraph text in this section
+            paragraphs = []
+            for p in div.findall(".//tei:p", ns):
+                p_text = ''.join(p.itertext()).strip()
+                p_text = ' '.join(p_text.split())
+                if p_text:
+                    paragraphs.append(p_text)
+
+            section_content = '\n\n'.join(paragraphs)
+
+            if section_title and section_content:
+                sections[section_title] = section_content
+
+    return sections
+
+
+def extract_references(root: ET.Element, ns: Dict[str, str]) -> list:
+    """
+    Extract references/bibliography from TEI XML.
+
+    Args:
+        root: XML root element
+        ns: Namespace dictionary
+
+    Returns:
+        List of reference strings
+    """
+    references = []
+
+    # Find bibliography section
+    bibl_elements = root.findall(".//tei:text/tei:back//tei:listBibl/tei:biblStruct", ns)
+
+    for bibl in bibl_elements:
+        # Extract reference text
+        ref_text = ''.join(bibl.itertext()).strip()
+        ref_text = ' '.join(ref_text.split())
+        if ref_text:
+            references.append(ref_text)
+
+    return references
+
+
+def extract_metadata_from_xml(xml_path: Path, include_full_content: bool = False) -> Dict[str, any]:
     """
     Extract title, authors, and abstract from GROBID TEI XML file.
+    Optionally extract all sections and references.
 
     Args:
         xml_path: Path to the XML file
+        include_full_content: If True, extract all sections and references
 
     Returns:
         Dictionary containing extracted metadata
@@ -174,13 +248,18 @@ def extract_metadata_from_xml(xml_path: Path) -> Dict[str, any]:
     # Define namespace
     ns = {'tei': 'http://www.tei-c.org/ns/1.0'}
 
-    # Extract metadata
+    # Extract basic metadata
     metadata = {
         'title': extract_title(root, ns),
         'authors': extract_authors(root, ns),
         'abstract': extract_abstract(root, ns),
         'source_file': str(xml_path.name)
     }
+
+    # Optionally extract full content
+    if include_full_content:
+        metadata['sections'] = extract_sections(root, ns)
+        metadata['references'] = extract_references(root, ns)
 
     return metadata
 

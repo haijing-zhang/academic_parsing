@@ -173,7 +173,7 @@ def generate_summary_file(triad_dir: Path, original_data: Dict,
     Quality Labels:
     - P (Perfect): Papers are talking to each other AND all extracted articles are related
     - B (Broken): Papers are talking but PDFs contain extra unrelated articles (need parsing)
-    - IV (Invalid): Papers are not talking to each other
+    - IV (Invalid): Original paper is broken (missing abstract/authors/sections) OR papers are not talking to each other
 
     Args:
         triad_dir: Path to the triad directory
@@ -207,7 +207,22 @@ def generate_summary_file(triad_dir: Path, original_data: Dict,
     response_related = critique_response_outputs.get('response_related_count', 0)
 
     # Determine quality label (prediction)
-    if not papers_talking:
+    # First, check if the original paper itself is valid
+    original_abstract = original_data.get('abstract', '').strip()
+    original_authors = original_data.get('authors', '').strip()
+    original_sections = original_data.get('sections', {})
+
+    if not original_abstract or not original_authors or not original_sections:
+        quality_label = "IV"  # Invalid - original paper is broken
+        missing_parts = []
+        if not original_abstract:
+            missing_parts.append("abstract")
+        if not original_authors:
+            missing_parts.append("authors")
+        if not original_sections:
+            missing_parts.append("sections")
+        quality_explanation = f"Original paper is broken (missing: {', '.join(missing_parts)})"
+    elif not papers_talking:
         quality_label = "IV"  # Invalid - not talking to each other
         quality_explanation = "Papers are not debating with one another"
     elif critique_related < critique_total or response_related < response_total:

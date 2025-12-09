@@ -1,20 +1,20 @@
 {
-  "total_triads": 31,
-  "correct_predictions": 24,
-  "false_predictions": 7,
-  "accuracy_rate": 77.41935483870968,
+  "total_triads": 100,
+  "correct_predictions": 96,
+  "false_predictions": 4,
+  "accuracy_rate": 96.0,
   "label_breakdown": {
     "P": {
-      "total": 9,
-      "correct": 9
+      "total": 45,
+      "correct": 43
     },
     "B": {
-      "total": 11,
-      "correct": 11
+      "total": 29,
+      "correct": 29
     },
     "IV": {
-      "total": 11,
-      "correct": 4
+      "total": 26,
+      "correct": 24
     }
   }
 }

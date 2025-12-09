@@ -161,13 +161,15 @@ class BatchTriadProcessor:
         print(f"  ✓ Created directory structure")
         return triad_dir
 
-    def process_all_triads(self, start_from: int = 0, limit: Optional[int] = None):
+    def process_all_triads(self, start_from: int = 0, limit: Optional[int] = None,
+                          start_from_step: int = 1):
         """
         Process all triads from CSV.
 
         Args:
             start_from: Start from this index (0-based)
             limit: Process only this many triads (None for all)
+            start_from_step: Which step to start from (1-6, default: 1)
         """
         print("="*70)
         print("BATCH TRIAD PROCESSING")
@@ -231,7 +233,7 @@ class BatchTriadProcessor:
                     grobid_url=self.grobid_url,
                     openai_api_key=self.openai_api_key
                 )
-                success = processor.run_full_workflow()
+                success = processor.run_full_workflow(start_from_step=start_from_step)
 
                 if success:
                     results[index] = "SUCCESS"
@@ -303,6 +305,18 @@ def main():
         default="http://localhost:8070",
         help="GROBID service URL (default: http://localhost:8070)"
     )
+    parser.add_argument(
+        "--triad-index",
+        type=str,
+        help="Process only a specific triad by index (e.g., '6925')"
+    )
+    parser.add_argument(
+        "--start-from-step",
+        type=int,
+        choices=[1, 2, 3, 4, 5, 6],
+        default=1,
+        help="Which step to start from (1-6). Use 6 for final outputs only (default: 1)"
+    )
 
     args = parser.parse_args()
 
@@ -322,11 +336,47 @@ def main():
         grobid_url=args.grobid_url
     )
 
-    # Process all triads
-    processor.process_all_triads(
-        start_from=args.start_from,
-        limit=args.limit
-    )
+    # Handle single triad processing
+    if args.triad_index:
+        # Process single triad
+        triad_dir = Path(args.output_dir) / f"triad_{args.triad_index}"
+
+        if not triad_dir.exists():
+            print(f"❌ Error: Triad directory not found: {triad_dir}")
+            print(f"\nMake sure triad_{args.triad_index} exists in {args.output_dir}")
+            sys.exit(1)
+
+        print("="*70)
+        print(f"PROCESSING SINGLE TRIAD: triad_{args.triad_index}")
+        print(f"Starting from step: {args.start_from_step}")
+        print("="*70)
+
+        from triad_processor_batch import TriadProcessorBatch
+
+        try:
+            triad_processor = TriadProcessorBatch(
+                triad_dir=triad_dir,
+                grobid_url=args.grobid_url,
+                openai_api_key=os.environ.get("OPENAI_API_KEY")
+            )
+            success = triad_processor.run_full_workflow(start_from_step=args.start_from_step)
+
+            if success:
+                print("\n✓ Processing completed successfully!")
+                sys.exit(0)
+            else:
+                print("\n❌ Processing failed!")
+                sys.exit(1)
+        except Exception as e:
+            print(f"\n❌ Error: {e}")
+            sys.exit(1)
+    else:
+        # Process all triads
+        processor.process_all_triads(
+            start_from=args.start_from,
+            limit=args.limit,
+            start_from_step=args.start_from_step
+        )
 
 
 if __name__ == "__main__":

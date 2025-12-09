@@ -61,21 +61,27 @@ def generate_critique_response_outputs(triad_dir: Path, analysis_data: Dict) -> 
     critique_files = list(openai_structured_dir.glob("critique_*_structured.json"))
     if critique_files:
         critique_data = load_json_file(critique_files[0])
-        total_critiques = len(critique_data.get('articles', []))
+        all_critique_articles = critique_data.get('articles', [])
+        total_critiques = len(all_critique_articles)
 
-        # Enrich related critiques with references
+        # Use index-based matching for related critiques
         enriched_critiques = []
         for related_article in related_critiques:
-            matching_article = next(
-                (article for article in critique_data.get('articles', [])
-                 if article.get('title') == related_article.get('title')),
-                None
-            )
-            if matching_article:
-                enriched_article = related_article.copy()
-                enriched_article['references'] = matching_article.get('references', [])
-                enriched_critiques.append(enriched_article)
+            # Use 'index' field if available, otherwise try 'article_index'
+            # Note: Must check 'is not None' because index could be 0 (which is falsy)
+            article_index = related_article.get('index')
+            if article_index is None:
+                article_index = related_article.get('article_index')
+
+            print('related_article:', related_article)
+            print('article_index:', article_index)
+
+            if article_index is not None and 0 <= article_index < len(all_critique_articles):
+                # Use everything from the structured JSON file at that index
+                enriched_critiques.append(all_critique_articles[article_index])
             else:
+                # Fallback to related_article if index not found or out of range
+                print(f"    ⚠ Warning: Could not find critique article at index {article_index}")
                 enriched_critiques.append(related_article)
 
         outputs['critique'] = {
@@ -97,21 +103,24 @@ def generate_critique_response_outputs(triad_dir: Path, analysis_data: Dict) -> 
     response_files = list(openai_structured_dir.glob("response_*_structured.json"))
     if response_files:
         response_data = load_json_file(response_files[0])
-        total_responses = len(response_data.get('articles', []))
+        all_response_articles = response_data.get('articles', [])
+        total_responses = len(all_response_articles)
 
-        # Enrich related responses with references
+        # Use index-based matching for related responses
         enriched_responses = []
         for related_article in related_responses:
-            matching_article = next(
-                (article for article in response_data.get('articles', [])
-                 if article.get('title') == related_article.get('title')),
-                None
-            )
-            if matching_article:
-                enriched_article = related_article.copy()
-                enriched_article['references'] = matching_article.get('references', [])
-                enriched_responses.append(enriched_article)
+            # Use 'index' field if available, otherwise try 'article_index'
+            # Note: Must check 'is not None' because index could be 0 (which is falsy)
+            article_index = related_article.get('index')
+            if article_index is None:
+                article_index = related_article.get('article_index')
+
+            if article_index is not None and 0 <= article_index < len(all_response_articles):
+                # Use everything from the structured JSON file at that index
+                enriched_responses.append(all_response_articles[article_index])
             else:
+                # Fallback to related_article if index not found or out of range
+                print(f"    ⚠ Warning: Could not find response article at index {article_index}")
                 enriched_responses.append(related_article)
 
         outputs['response'] = {
@@ -134,7 +143,14 @@ def generate_critique_response_outputs(triad_dir: Path, analysis_data: Dict) -> 
 
 def generate_summary_file(triad_dir: Path, original_data: Dict,
                          critique_response_outputs: Dict, analysis_data: Dict) -> Optional[Dict]:
-    """Generate summary file with prediction and ground truth labels."""
+    """
+    Generate summary file with prediction and ground truth labels.
+
+    Quality Labels:
+    - P (Perfect): Papers are talking to each other AND all extracted articles are related
+    - B (Broken): Papers are talking but PDFs contain extra unrelated articles (need parsing)
+    - IV (Invalid): Original paper is broken (missing abstract/authors/sections) OR papers are not talking to each other
+    """
     print("\nGenerating summary file...")
 
     # Load ground truth label from raw_data/metadata.json
@@ -151,21 +167,42 @@ def generate_summary_file(triad_dir: Path, original_data: Dict,
             print(f"  Warning: Could not load ground truth label from metadata.json: {e}")
 
     # Get metadata counts
-    papers_talking = analysis_data.get('talk_to_each_other', False)
+    papers_talking = (
+        analysis_data.get('talk_to_each_other')
+        or analysis_data.get('talk_to_each other')
+        or False
+    )
     critique_total = critique_response_outputs.get('critique_total_count', 0)
     critique_related = critique_response_outputs.get('critique_related_count', 0)
     response_total = critique_response_outputs.get('response_total_count', 0)
     response_related = critique_response_outputs.get('response_related_count', 0)
 
     # Determine quality label (prediction)
-    if not papers_talking:
-        quality_label = "IV"
+    # First, check if the original paper itself is valid
+    original_abstract = original_data.get('abstract', '').strip()
+    # original_authors = original_data.get('authors', '').strip()
+    original_sections = original_data.get('sections', {})
+
+    if len(original_sections.keys()) < 2:
+        quality_label = "IV"  # Invalid - original paper is broken
+        missing_parts = []
+        # if not original_abstract:
+        #     missing_parts.append("abstract")
+        # if not original_authors:
+        #     missing_parts.append("authors")
+        if not original_sections :
+            missing_parts.append("sections")
+        if len(original_sections.keys()) < 2 :
+            missing_parts.append("sections too short")
+        quality_explanation = f"Original paper is broken (missing: {', '.join(missing_parts)})"
+    elif not papers_talking:
+        quality_label = "IV"  # Invalid - not talking to each other
         quality_explanation = "Papers are not debating with one another"
     elif critique_related < critique_total or response_related < response_total:
-        quality_label = "B"
+        quality_label = "B"  # Broken - PDFs contain extra articles
         quality_explanation = f"PDFs contain extra articles (Critique: {critique_related}/{critique_total}, Response: {response_related}/{response_total})"
     else:
-        quality_label = "P"
+        quality_label = "P"  # Perfect - clean and complete
         quality_explanation = "PDFs are clean and papers are debating perfectly"
 
     print(f"  Prediction Label: {quality_label} - {quality_explanation}")

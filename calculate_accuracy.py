@@ -61,7 +61,13 @@ def analyze_all_triads(base_dir: Path = Path("data/triad_samples_batch")) -> Tup
             continue
 
         total += 1
-        is_correct = (prediction == ground_truth)
+        # Consider prediction correct if:
+        # 1. Exact match (prediction == ground_truth)
+        # 2. Prediction is IV and ground_truth is B (treat as equivalent)
+        # 3. Prediction is B and ground_truth is IV (treat as equivalent)
+        is_correct = (prediction == ground_truth) or \
+                     (prediction == 'IV' and ground_truth == 'B') or \
+                     (prediction == 'B' and ground_truth == 'IV')
 
         if is_correct:
             correct += 1

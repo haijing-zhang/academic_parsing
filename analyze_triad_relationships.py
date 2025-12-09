@@ -33,41 +33,57 @@ def analyze_triad_relationships(original_metadata: dict, critique_data: dict, re
     """
     client = OpenAI(api_key=api_key)
 
-    # Prepare the input data
+    # Prepare the input data - add index to each article
+    critique_articles = critique_data.get('articles', [])
+    response_articles = response_data.get('articles', [])
+
+    # Add index field to each article for identification
+    critiques_with_index = [
+        {**article, "index": idx}
+        for idx, article in enumerate(critique_articles)
+    ]
+    responses_with_index = [
+        {**article, "index": idx}
+        for idx, article in enumerate(response_articles)
+    ]
+
     input_data = {
         "original_paper": {
             "title": original_metadata.get('title', ''),
             "authors": original_metadata.get('authors', ''),
             "abstract": original_metadata.get('abstract', '')
         },
-        "critiques": critique_data.get('articles', []),
-        "responses": response_data.get('articles', [])
+        "critiques": critiques_with_index,
+        "responses": responses_with_index
     }
 
     prompt = f"""You are an expert in analyzing academic correspondence and peer debates.
 
 You will be given the following information:
 1. Metadata and abstract of an **Original Paper**.
-2. A list of **Critique objects** (each with title, authors, and text).
-3. A list of **Response objects** (each with title, authors, and text).
+2. A list of **Critique objects** (each with title, authors, text, and an index).
+3. A list of **Response objects** (each with title, authors, text, and an index).
 
 Goal:
 Find which Critique(s) and Response(s) are truly related to the Original paper and talk to each other.
 
 Judge by:
-- The Author of Response should be same with the original paper's Author. And it should talk to the Au
-thor of Critique.
+- The Author of Response should be same with the original paper's Author. And it should talk to the Author of Critique.
 - Content relevance to the Original paper
 - Whether Response explicitly replies to Critique
 
 Output JSON:
 {{
-  "related_critiques": [ {{ "title": "...", "authors": "...", "body": "..." }} ],
-  "related_responses": [ {{ "title": "...", "authors": "...", "body": "..." }} ],
+  "related_critiques": [ {{ "title": "...", "authors": "...", "body": "...", "index": 0 }} ],
+  "related_responses": [ {{ "title": "...", "authors": "...", "body": "...", "index": 0 }} ],
   "talk_to_each_other": true/false,
   "explanation": "brief explanation of the relationship",
   "flag": null or "no_related_paper_found" or "topic_mismatch"
 }}
+
+**IMPORTANT**: You MUST include the "index" field for each related critique and response.
+This index corresponds to the position of the article in the input arrays.
+Copy the exact index value from the input data for each article you identify as related.
 
 If uncertain, be conservative and exclude weak matches.
 If no clear link found, set an appropriate flag.
@@ -105,8 +121,8 @@ Here is the data:
     result['analysis_metadata'] = {
         'model': 'gpt-4o-mini',
         'original_title': original_metadata.get('title', ''),
-        'num_critiques_analyzed': len(critique_data.get('articles', [])),
-        'num_responses_analyzed': len(response_data.get('articles', []))
+        'num_critiques_analyzed': len(critique_articles),
+        'num_responses_analyzed': len(response_articles)
     }
 
     return result

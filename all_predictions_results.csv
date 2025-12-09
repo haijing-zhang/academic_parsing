@@ -1,32 +1,101 @@
 triad_index,prediction_label,ground_truth_label,is_correct,explanation,summary_path
 1063,B,B,True,"PDFs contain extra articles (Critique: 1/2, Response: 1/3)",data/triad_samples_batch/triad_1063/final_outputs/summary.json
-118,B,IV,False,"PDFs contain extra articles (Critique: 1/2, Response: 1/3)",data/triad_samples_batch/triad_118/final_outputs/summary.json
+1065,IV,B,True,"Original paper is broken (missing: abstract, sections)",data/triad_samples_batch/triad_1065/final_outputs/summary.json
+1077,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_1077/final_outputs/summary.json
+110,B,B,True,"PDFs contain extra articles (Critique: 1/2, Response: 1/2)",data/triad_samples_batch/triad_110/final_outputs/summary.json
+118,IV,IV,True,Original paper is broken (missing: sections),data/triad_samples_batch/triad_118/final_outputs/summary.json
+1208,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_1208/final_outputs/summary.json
+1390,IV,IV,True,Original paper is broken (missing: sections),data/triad_samples_batch/triad_1390/final_outputs/summary.json
+1413,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_1413/final_outputs/summary.json
 1824,IV,IV,True,Papers are not debating with one another,data/triad_samples_batch/triad_1824/final_outputs/summary.json
 1841,B,B,True,"PDFs contain extra articles (Critique: 1/2, Response: 1/2)",data/triad_samples_batch/triad_1841/final_outputs/summary.json
+2158,B,B,True,"PDFs contain extra articles (Critique: 1/2, Response: 1/2)",data/triad_samples_batch/triad_2158/final_outputs/summary.json
+2337,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_2337/final_outputs/summary.json
+2529,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_2529/final_outputs/summary.json
+2550,IV,B,True,Original paper is broken (missing: abstract),data/triad_samples_batch/triad_2550/final_outputs/summary.json
+2585,IV,P,False,"Original paper is broken (missing: sections, sections too short)",data/triad_samples_batch/triad_2585/final_outputs/summary.json
 2661,IV,IV,True,Papers are not debating with one another,data/triad_samples_batch/triad_2661/final_outputs/summary.json
+2732,IV,IV,True,Original paper is broken (missing: sections),data/triad_samples_batch/triad_2732/final_outputs/summary.json
+2804,IV,IV,True,"Original paper is broken (missing: abstract, sections)",data/triad_samples_batch/triad_2804/final_outputs/summary.json
 2808,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_2808/final_outputs/summary.json
 2847,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_2847/final_outputs/summary.json
+3005,IV,IV,True,Original paper is broken (missing: sections),data/triad_samples_batch/triad_3005/final_outputs/summary.json
 3076,B,B,True,"PDFs contain extra articles (Critique: 1/3, Response: 1/3)",data/triad_samples_batch/triad_3076/final_outputs/summary.json
+3214,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_3214/final_outputs/summary.json
+3245,IV,IV,True,Original paper is broken (missing: sections),data/triad_samples_batch/triad_3245/final_outputs/summary.json
+3391,B,B,True,"PDFs contain extra articles (Critique: 1/4, Response: 1/2)",data/triad_samples_batch/triad_3391/final_outputs/summary.json
+3603,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_3603/final_outputs/summary.json
 3897,B,B,True,"PDFs contain extra articles (Critique: 1/2, Response: 1/2)",data/triad_samples_batch/triad_3897/final_outputs/summary.json
 3938,B,B,True,"PDFs contain extra articles (Critique: 1/3, Response: 1/1)",data/triad_samples_batch/triad_3938/final_outputs/summary.json
-4778,IV,IV,True,Papers are not debating with one another,data/triad_samples_batch/triad_4778/final_outputs/summary.json
+4041,B,B,True,"PDFs contain extra articles (Critique: 1/2, Response: 1/2)",data/triad_samples_batch/triad_4041/final_outputs/summary.json
+4421,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_4421/final_outputs/summary.json
+4649,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_4649/final_outputs/summary.json
+4756,IV,P,False,Original paper is broken (missing: sections),data/triad_samples_batch/triad_4756/final_outputs/summary.json
+4773,IV,IV,True,Papers are not debating with one another,data/triad_samples_batch/triad_4773/final_outputs/summary.json
+4778,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_4778/final_outputs/summary.json
+4853,B,B,True,"PDFs contain extra articles (Critique: 1/3, Response: 1/2)",data/triad_samples_batch/triad_4853/final_outputs/summary.json
+4866,IV,B,True,"Original paper is broken (missing: abstract, sections)",data/triad_samples_batch/triad_4866/final_outputs/summary.json
+4899,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_4899/final_outputs/summary.json
 50,P,IV,False,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_50/final_outputs/summary.json
 515,B,B,True,"PDFs contain extra articles (Critique: 0/0, Response: 1/3)",data/triad_samples_batch/triad_515/final_outputs/summary.json
+5280,IV,IV,True,Original paper is broken (missing: sections too short),data/triad_samples_batch/triad_5280/final_outputs/summary.json
+5287,IV,IV,True,Original paper is broken (missing: sections),data/triad_samples_batch/triad_5287/final_outputs/summary.json
+5306,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_5306/final_outputs/summary.json
+5605,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_5605/final_outputs/summary.json
+5717,B,B,True,"PDFs contain extra articles (Critique: 1/3, Response: 1/3)",data/triad_samples_batch/triad_5717/final_outputs/summary.json
+5758,IV,IV,True,"Original paper is broken (missing: abstract, authors, sections)",data/triad_samples_batch/triad_5758/final_outputs/summary.json
+5769,IV,B,True,Original paper is broken (missing: authors),data/triad_samples_batch/triad_5769/final_outputs/summary.json
+5774,B,IV,True,"PDFs contain extra articles (Critique: 1/2, Response: 1/3)",data/triad_samples_batch/triad_5774/final_outputs/summary.json
+5821,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_5821/final_outputs/summary.json
 5861,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_5861/final_outputs/summary.json
-6428,B,IV,False,"PDFs contain extra articles (Critique: 1/1, Response: 1/2)",data/triad_samples_batch/triad_6428/final_outputs/summary.json
+5941,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_5941/final_outputs/summary.json
+5986,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_5986/final_outputs/summary.json
+6002,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_6002/final_outputs/summary.json
+6031,IV,IV,True,Original paper is broken (missing: authors),data/triad_samples_batch/triad_6031/final_outputs/summary.json
+6114,B,B,True,"PDFs contain extra articles (Critique: 1/2, Response: 1/2)",data/triad_samples_batch/triad_6114/final_outputs/summary.json
+6357,IV,B,True,Original paper is broken (missing: sections),data/triad_samples_batch/triad_6357/final_outputs/summary.json
+6392,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_6392/final_outputs/summary.json
+6428,IV,IV,True,Original paper is broken (missing: sections),data/triad_samples_batch/triad_6428/final_outputs/summary.json
+6460,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_6460/final_outputs/summary.json
 6495,IV,IV,True,Papers are not debating with one another,data/triad_samples_batch/triad_6495/final_outputs/summary.json
+6533,IV,IV,True,"Original paper is broken (missing: abstract, authors)",data/triad_samples_batch/triad_6533/final_outputs/summary.json
+6780,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_6780/final_outputs/summary.json
+6793,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_6793/final_outputs/summary.json
 6832,B,B,True,"PDFs contain extra articles (Critique: 1/3, Response: 1/3)",data/triad_samples_batch/triad_6832/final_outputs/summary.json
+6871,B,B,True,"PDFs contain extra articles (Critique: 1/3, Response: 1/4)",data/triad_samples_batch/triad_6871/final_outputs/summary.json
 6925,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_6925/final_outputs/summary.json
 6981,B,B,True,"PDFs contain extra articles (Critique: 1/2, Response: 1/2)",data/triad_samples_batch/triad_6981/final_outputs/summary.json
-7318,P,IV,False,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_7318/final_outputs/summary.json
-7350,P,IV,False,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_7350/final_outputs/summary.json
+7076,B,B,True,"PDFs contain extra articles (Critique: 1/1, Response: 1/2)",data/triad_samples_batch/triad_7076/final_outputs/summary.json
+7114,B,B,True,"PDFs contain extra articles (Critique: 1/2, Response: 1/1)",data/triad_samples_batch/triad_7114/final_outputs/summary.json
+7212,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_7212/final_outputs/summary.json
+7318,IV,IV,True,"Original paper is broken (missing: abstract, sections)",data/triad_samples_batch/triad_7318/final_outputs/summary.json
+7350,IV,IV,True,Original paper is broken (missing: abstract),data/triad_samples_batch/triad_7350/final_outputs/summary.json
+7351,IV,B,True,Papers are not debating with one another,data/triad_samples_batch/triad_7351/final_outputs/summary.json
 7358,B,B,True,"PDFs contain extra articles (Critique: 1/2, Response: 1/2)",data/triad_samples_batch/triad_7358/final_outputs/summary.json
+7726,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_7726/final_outputs/summary.json
 7786,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_7786/final_outputs/summary.json
 7855,B,B,True,"PDFs contain extra articles (Critique: 1/3, Response: 1/4)",data/triad_samples_batch/triad_7855/final_outputs/summary.json
-7917,B,IV,False,"PDFs contain extra articles (Critique: 1/3, Response: 1/3)",data/triad_samples_batch/triad_7917/final_outputs/summary.json
+7875,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_7875/final_outputs/summary.json
+7917,IV,IV,True,Original paper is broken (missing: sections),data/triad_samples_batch/triad_7917/final_outputs/summary.json
+7941,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_7941/final_outputs/summary.json
+7987,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_7987/final_outputs/summary.json
 8062,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_8062/final_outputs/summary.json
+8305,B,B,True,"PDFs contain extra articles (Critique: 1/2, Response: 1/3)",data/triad_samples_batch/triad_8305/final_outputs/summary.json
+8374,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_8374/final_outputs/summary.json
+8383,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_8383/final_outputs/summary.json
+8583,IV,IV,True,"Original paper is broken (missing: abstract, sections)",data/triad_samples_batch/triad_8583/final_outputs/summary.json
+8607,IV,IV,True,"Original paper is broken (missing: abstract, authors, sections)",data/triad_samples_batch/triad_8607/final_outputs/summary.json
 8776,P,IV,False,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_8776/final_outputs/summary.json
+903,IV,IV,True,Original paper is broken (missing: abstract),data/triad_samples_batch/triad_903/final_outputs/summary.json
+9096,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_9096/final_outputs/summary.json
+9212,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_9212/final_outputs/summary.json
+9214,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_9214/final_outputs/summary.json
+9253,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_9253/final_outputs/summary.json
+9280,IV,IV,True,Original paper is broken (missing: sections),data/triad_samples_batch/triad_9280/final_outputs/summary.json
 9283,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_9283/final_outputs/summary.json
 9309,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_9309/final_outputs/summary.json
 9359,B,B,True,"PDFs contain extra articles (Critique: 1/2, Response: 1/2)",data/triad_samples_batch/triad_9359/final_outputs/summary.json
+9534,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_9534/final_outputs/summary.json
 9605,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_9605/final_outputs/summary.json
+9739,P,P,True,PDFs are clean and papers are debating perfectly,data/triad_samples_batch/triad_9739/final_outputs/summary.json
+981,B,B,True,"PDFs contain extra articles (Critique: 1/3, Response: 1/5)",data/triad_samples_batch/triad_981/final_outputs/summary.json

@@ -41,38 +41,113 @@ def process_with_openai(text: str, source_file: str, api_key: str, max_retries: 
     client = OpenAI(api_key=api_key)
 
     prompt = """
-The text below may contain multiple short scientific letters or replies merged together.
-For each distinct article, extract:
+The text below may contain multiple short scientific letters, replies, or articles merged together.
+
+For EACH distinct article, extract and normalize the following fields:
+
 - title
 - authors (as a comma-separated string)
-- main body text (KEEP ALL IN-TEXT CITATIONS INTACT, e.g., (Author, Year) or [1])
-- references (list of reference strings from the bibliography/reference section)
+- main body text
+- references
 
-**CRITICAL REQUIREMENT - REFERENCES ARE MANDATORY:**
-- Each article MUST include a "references" field
-- The "references" field must contain a list (array) of all reference strings found in the bibliography/reference section of that article
-- Even if the article has no references, include an empty list: "references": []
-- References are typically found at the end of each article in sections labeled "References", "Bibliography", "Works Cited", etc.
-- Extract the complete reference string for each citation (e.g., "Smith, J. (2020). Title of paper. Journal Name, 15(3), 123-145.")
-- DO NOT skip or omit the references field - it is essential for downstream processing
+========================
+CRITICAL CITATION & REFERENCE REQUIREMENTS (MANDATORY)
+========================
 
-Return the data as a JSON object with this structure:
+1. In-text citations in the MAIN BODY ARE REQUIRED.
+   - The main body MUST contain in-text citations.
+   - Every in-text citation MUST correspond to an entry in the references list.
+
+2. NORMALIZE ALL CITATIONS TO NUMERIC FORMAT.
+   - Convert ALL in-text citations to numeric form: [1], [2], [3], ...
+   - This includes citations originally written as:
+     - (Author, Year)
+     - (Author et al., Year)
+     - [Smith 2020]
+   - Replace them consistently with numeric markers.
+
+3. REFERENCE LIST NUMBERING
+   - The references field MUST be a list of strings.
+   - Each reference MUST be prefixed with its numeric identifier:
+     - "[1] Full reference string..."
+     - "[2] Full reference string..."
+   - Numbering MUST start at [1] and be sequential.
+   - The numbering MUST match the in-text citation numbers used in the body.
+
+4. BI-DIRECTIONAL CONSISTENCY (STRICT)
+   - Every numeric citation used in the body MUST appear in the references list.
+   - Every reference listed MUST be cited at least once in the body.
+   - Do NOT include unused references.
+   - Do NOT invent references that do not appear in the original text.
+
+========================
+SEMANTIC CITATION INFERENCE (ALLOWED AND REQUIRED)
+========================
+
+5. SEMANTIC CITATION INFERENCE
+   - If the original body text does NOT explicitly contain an in-text citation,
+     but the text clearly discusses, builds upon, critiques, or references
+     a known work, method, dataset, or theory:
+       - Use author names, method names, terminology, or contextual clues
+         to infer the most likely reference from the extracted reference list.
+   - Insert a numeric in-text citation [n] at the most semantically appropriate
+     location in the body.
+
+6. INFERENCE CONSTRAINTS (STRICT)
+   - You MUST ONLY infer citations to references that already exist
+     in the extracted reference list.
+   - Do NOT create new references.
+   - Do NOT cite a reference unless there is strong semantic evidence
+     (e.g., matching author names, method names, datasets, or distinctive terminology).
+   - When multiple references could plausibly match, choose the best match
+     and cite only that reference.
+
+7. REFERENCE USAGE REQUIREMENT
+   - EVERY reference in the reference list MUST be cited at least once
+     in the main body using its numeric identifier.
+   - If a reference appears in the bibliography but is not explicitly cited
+     in the body, you MUST infer and insert a citation based on semantic relevance.
+   - If no reasonable semantic link can be established for a reference,
+     EXCLUDE that reference from the final reference list.
+
+========================
+REFERENCE EXTRACTION
+========================
+
+8. Reference entries are typically located at the end of the article under sections such as:
+   - "References"
+   - "Bibliography"
+   - "Works Cited"
+   - Extract the COMPLETE reference string for each entry.
+   - Preserve original formatting as much as possible.
+
+========================
+OUTPUT FORMAT
+========================
+
+Return the result as a JSON object with the following structure:
+
 {
   "articles": [
     {
       "title": "...",
       "authors": "...",
       "body": "...",
-      "references": ["ref1", "ref2", ...]
+      "references": [
+        "[1] ...",
+        "[2] ..."
+      ]
     }
   ]
 }
 
-If there's only one article, still use the list format.
-Remember: Every article object MUST have a "references" field!
-Ensure all string values are properly escaped (quotes, newlines, backslashes).
+- Always return a LIST under "articles", even if there is only one article.
+- The "references" field is MANDATORY for every article.
+- Ensure all strings are properly escaped (quotes, newlines, backslashes).
 
-Text:
+========================
+TEXT TO PROCESS
+========================
 """
 
     # Retry loop to handle transient errors and malformed JSON
@@ -88,31 +163,103 @@ Text:
                 # Retry with instructions to be more concise
                 current_prompt = """
 The text below may contain multiple short scientific letters or replies merged together.
-For each distinct article, extract:
+
+For EACH distinct article, extract and normalize the following fields:
+
 - title
 - authors (as a comma-separated string)
-- main body text (KEEP IN-TEXT CITATIONS, but SUMMARIZE to fit within token limits)
-- references (list of reference strings from the bibliography/reference section)
+- main body text (SUMMARIZED due to length constraints)
+- references
 
-**CRITICAL - DUE TO LENGTH CONSTRAINTS:**
-- Every article MUST have a "references" field (array of reference strings)
-- SUMMARIZE the body text while keeping essential citations
-- Prioritize completeness over detail - include ALL articles even if body is brief
-- Extract complete reference list for each article
+========================
+CRITICAL REQUIREMENTS (MANDATORY)
+========================
 
-Return JSON:
+1. IN-TEXT CITATIONS ARE REQUIRED
+   - The summarized main body MUST contain in-text citations.
+   - ALL in-text citations MUST use numeric identifiers in the following format:
+     【1】, 【2】, 【3】, ...
+   - Do NOT use any other citation formats (e.g., (Author, Year), [1], etc.).
+
+2. BODY SUMMARIZATION WITH CITATIONS
+   - SUMMARIZE the main body text to fit within token limits.
+   - While summarizing, you MUST preserve essential scientific claims,
+     conclusions, and cited prior work.
+   - If citations are removed during summarization, you MUST reinsert
+     appropriate numeric in-text citations 【n】 to ensure the body
+     still references the relevant works.
+
+3. SEMANTIC CITATION INSERTION (ALLOWED AND REQUIRED)
+   - If the original text does not explicitly contain in-text citations,
+     or if citations are lost due to summarization:
+       - Infer appropriate citations based on semantic relevance,
+         author names, methods, datasets, or terminology.
+   - You MAY ONLY cite references that appear in the extracted reference list.
+   - Do NOT create new references or hallucinate citations.
+
+========================
+REFERENCE REQUIREMENTS
+========================
+
+4. REFERENCES FIELD IS MANDATORY
+   - Every article MUST include a "references" field.
+   - The "references" field MUST be a list of strings.
+   - If the article truly has no references, include an empty list: [].
+
+5. REFERENCE NUMBERING AND CONSISTENCY
+   - Each reference MUST be prefixed with a numeric identifier using
+     the same full-width format:
+       "【1】 Full reference string..."
+       "【2】 Full reference string..."
+   - Numbering MUST start at 【1】 and be sequential.
+   - The numbering MUST match the in-text citation numbers used in the body.
+
+6. REFERENCE USAGE GUARANTEE
+   - EVERY reference in the references list MUST be cited at least once
+     in the summarized body using the format 【n】.
+   - If a reference appears in the bibliography but is not explicitly cited,
+     you MUST infer and insert a citation based on semantic relevance.
+   - If no reasonable semantic link can be established,
+     EXCLUDE that reference from the final reference list.
+
+========================
+LENGTH-CONSTRAINED EXTRACTION POLICY
+========================
+
+7. Due to length constraints:
+   - Prioritize completeness over detail.
+   - Include ALL articles, even if the summarized body is very brief.
+   - It is acceptable for the body to be only a few sentences,
+     as long as it includes at least one valid in-text citation 【n】.
+
+========================
+OUTPUT FORMAT
+========================
+
+Return the result as a JSON object with the following structure:
+
 {
   "articles": [
     {
       "title": "...",
       "authors": "...",
-      "body": "... (summarized with key citations)",
-      "references": ["ref1", "ref2", ...]
+      "body": "... (summarized text with numeric in-text citations like 【1】)",
+      "references": [
+        "【1】 ...",
+        "【2】 ..."
+      ]
     }
   ]
 }
 
-Text:
+- Always return a LIST under "articles", even if there is only one article.
+- The "references" field is MANDATORY for every article.
+- Ensure all strings are properly escaped (quotes, newlines, backslashes).
+- ONLY use full-width numeric citations: 【n】.
+
+========================
+TEXT TO PROCESS
+========================
 """ + text
                 current_max_tokens = 16000 
                 print(f"  Retrying with concise mode and higher token limit...")

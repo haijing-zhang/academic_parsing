@@ -77,25 +77,29 @@ class BatchTriadProcessor:
                 records.append(row)
         return records
 
-    def is_already_processed(self, triad_dir: Path) -> bool:
+    def is_already_processed(self, triad_dir: Path, force_regenerate: bool = False) -> bool:
         """
         Check if a triad has already been processed.
 
         Args:
             triad_dir: Path to triad directory
+            force_regenerate: If True, always return False (force reprocessing)
 
         Returns:
             True if summary.json exists in final_outputs, False otherwise
         """
+        if force_regenerate:
+            return False
         summary_file = triad_dir / "final_outputs" / "summary.json"
         return summary_file.exists()
 
-    def setup_triad_directory(self, record: Dict) -> Optional[Path]:
+    def setup_triad_directory(self, record: Dict, force_regenerate: bool = False) -> Optional[Path]:
         """
         Setup triad directory with new folder structure.
 
         Args:
             record: CSV row as dictionary
+            force_regenerate: If True, skip the already-processed check
 
         Returns:
             Path to created triad directory or None if setup failed
@@ -106,8 +110,8 @@ class BatchTriadProcessor:
         # Create triad directory with index
         triad_dir = self.output_base_dir / f"triad_{index}"
 
-        # Check if already processed
-        if self.is_already_processed(triad_dir):
+        # Check if already processed (unless force_regenerate is True)
+        if self.is_already_processed(triad_dir, force_regenerate):
             print(f"  ⏭️  Already processed, skipping")
             return None
 
@@ -120,11 +124,30 @@ class BatchTriadProcessor:
         intermediate_dir.mkdir(parents=True, exist_ok=True)
         final_outputs_dir.mkdir(parents=True, exist_ok=True)
 
+        # Extract work IDs from record
+        # Check if using old format (work_id_* columns) or new format (triad_id split)
+        if 'work_id_original' in record:
+            # Old format: sample.csv
+            work_id_original = record['work_id_original']
+            work_id_critique = record['work_id_critique']
+            work_id_response = record['work_id_response']
+        else:
+            # New format: sample_new_100.csv (triad_id is concatenated)
+            # Format: W{original}_{critique}_{response}
+            parts = triad_id.split('_')
+            if len(parts) == 3:
+                work_id_original = parts[0]
+                work_id_critique = parts[1]
+                work_id_response = parts[2]
+            else:
+                print(f"  ❌ Invalid triad_id format: {triad_id}")
+                return None
+
         # Copy PDFs from pdfs_dir using work IDs
         pdf_mapping = {
-            'original': record['work_id_original'],
-            'critique': record['work_id_critique'],
-            'response': record['work_id_response']
+            'original': work_id_original,
+            'critique': work_id_critique,
+            'response': work_id_response
         }
 
         copied_count = 0
@@ -148,9 +171,9 @@ class BatchTriadProcessor:
         # Create metadata.json in raw_data
         metadata = {
             "triad_id": triad_id,
-            "original_id": record['work_id_original'],
-            "critique_id": record['work_id_critique'],
-            "response_id": record['work_id_response'],
+            "original_id": work_id_original,
+            "critique_id": work_id_critique,
+            "response_id": work_id_response,
             "csv_row": record
         }
 
@@ -162,7 +185,7 @@ class BatchTriadProcessor:
         return triad_dir
 
     def process_all_triads(self, start_from: int = 0, limit: Optional[int] = None,
-                          start_from_step: int = 1):
+                          start_from_step: int = 1, force_regenerate: bool = False):
         """
         Process all triads from CSV.
 
@@ -170,12 +193,15 @@ class BatchTriadProcessor:
             start_from: Start from this index (0-based)
             limit: Process only this many triads (None for all)
             start_from_step: Which step to start from (1-6, default: 1)
+            force_regenerate: If True, regenerate outputs even if summary.json exists
         """
         print("="*70)
         print("BATCH TRIAD PROCESSING")
         print("="*70)
         print(f"CSV: {self.csv_path}")
         print(f"Output: {self.output_base_dir}")
+        if force_regenerate:
+            print(f"Mode: FORCE REGENERATE (will reprocess all triads)")
         print("="*70)
 
         # Read CSV
@@ -203,11 +229,13 @@ class BatchTriadProcessor:
             print(f"\n{'='*70}")
             print(f"[{i+1}/{len(records)}] Processing Triad Index: {index}")
             print(f"Triad ID: {triad_id}")
-            print(f"Status Label: {record['status_label']}")
+            # Handle optional status_label column (exists in sample.csv but not sample_new_100.csv)
+            if 'status_label' in record:
+                print(f"Status Label: {record['status_label']}")
             print(f"{'='*70}")
 
             # Setup directory structure and copy PDFs from pdfs_dir
-            triad_dir = self.setup_triad_directory(record)
+            triad_dir = self.setup_triad_directory(record, force_regenerate)
 
             if triad_dir is None:
                 # Already processed
@@ -317,6 +345,11 @@ def main():
         default=1,
         help="Which step to start from (1-6). Use 6 for final outputs only (default: 1)"
     )
+    parser.add_argument(
+        "--force-regenerate",
+        action="store_true",
+        help="Force regenerate outputs even if already processed. Useful with --start-from-step 6 to regenerate all final outputs"
+    )
 
     args = parser.parse_args()
 
@@ -375,7 +408,8 @@ def main():
         processor.process_all_triads(
             start_from=args.start_from,
             limit=args.limit,
-            start_from_step=args.start_from_step
+            start_from_step=args.start_from_step,
+            force_regenerate=args.force_regenerate
         )
 
 

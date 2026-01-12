@@ -9,7 +9,6 @@ This script creates:
 from pathlib import Path
 import json
 from typing import Dict, Optional
-import os
 from dotenv import load_dotenv
 from xml_preprocessor import extract_metadata_from_xml
 
@@ -21,6 +20,89 @@ def load_json_file(file_path: Path) -> dict:
     """Load JSON file and return its contents."""
     with open(file_path, 'r', encoding='utf-8') as f:
         return json.load(f)
+
+
+def calculate_similarity(article1: Dict, article2: Dict) -> float:
+    """
+    Calculate similarity between two articles based on title and authors.
+
+    Args:
+        article1: First article dictionary
+        article2: Second article dictionary
+
+    Returns:
+        Similarity score between 0.0 and 1.0
+    """
+    def normalize_text(text: str) -> str:
+        """Normalize text for comparison."""
+        if not text:
+            return ""
+        return text.lower().strip()
+
+    def jaccard_similarity(str1: str, str2: str) -> float:
+        """Calculate Jaccard similarity between two strings."""
+        if not str1 or not str2:
+            return 0.0
+
+        words1 = set(normalize_text(str1).split())
+        words2 = set(normalize_text(str2).split())
+
+        if not words1 or not words2:
+            return 0.0
+
+        intersection = len(words1.intersection(words2))
+        union = len(words1.union(words2))
+
+        return intersection / union if union > 0 else 0.0
+
+    # Extract fields
+    title1 = article1.get('title', '')
+    title2 = article2.get('title', '')
+    authors1 = article1.get('authors', '')
+    authors2 = article2.get('authors', '')
+
+    # Calculate similarity for each field
+    title_sim = jaccard_similarity(title1, title2)
+    authors_sim = jaccard_similarity(authors1, authors2)
+
+    # Weighted average: title is more important than authors
+    weighted_similarity = (
+        title_sim * 0.7 +      # Title: 70%
+        authors_sim * 0.3      # Authors: 30%
+    )
+
+    return weighted_similarity
+
+
+def find_best_match(target_article: Dict, candidate_articles: list) -> Optional[Dict]:
+    """
+    Find the best matching article from candidates using similarity.
+
+    Args:
+        target_article: Article to match
+        candidate_articles: List of candidate articles
+
+    Returns:
+        Best matching article or None if no good match found
+    """
+    if not candidate_articles:
+        return None
+
+    best_match = None
+    best_score = 0.0
+
+    for candidate in candidate_articles:
+        score = calculate_similarity(target_article, candidate)
+        if score > best_score:
+            best_score = score
+            best_match = candidate
+
+    # Only return match if similarity is above threshold
+    # Threshold of 0.3 means at least some overlap in title/authors
+    if best_score >= 0.3:
+        return best_match
+
+    return None
 
 
 def generate_original_paper_output(triad_dir: Path) -> Optional[Dict]:
@@ -85,24 +167,29 @@ def generate_critique_response_outputs(triad_dir: Path, analysis_data: Dict) -> 
     critique_files = list(openai_structured_dir.glob("critique_*_structured.json"))
     if critique_files:
         critique_data = load_json_file(critique_files[0])
-        total_critiques = len(critique_data.get('articles', []))
+        all_critique_articles = critique_data.get('articles', [])
+        total_critiques = len(all_critique_articles)
 
-        # Enrich related critiques with references from structured data
+        # Use similarity-based matching for related critiques
         enriched_critiques = []
         for related_article in related_critiques:
-            # Find matching article in structured data by title
-            matching_article = next(
-                (article for article in critique_data.get('articles', [])
-                 if article.get('title') == related_article.get('title')),
-                None
-            )
-            if matching_article:
-                # Create enriched article with references
+            print(f"  Matching critique: {related_article.get('title', 'N/A')[:60]}...")
+
+            # Find best match using similarity
+            best_match = find_best_match(related_article, all_critique_articles)
+
+            if best_match:
+                # Calculate similarity score for logging
+                score = calculate_similarity(related_article, best_match)
+                print(f"    ✓ Found match (similarity: {score:.2f}): {best_match.get('title', 'N/A')[:60]}...")
+
+                # Create enriched article with references from best match
                 enriched_article = related_article.copy()
-                enriched_article['references'] = matching_article.get('references', [])
+                enriched_article['references'] = best_match.get('references', [])
                 enriched_critiques.append(enriched_article)
             else:
-                # If no match found, keep original (shouldn't happen)
+                # Fallback to related_article if no good match found
+                print(f"    ⚠ Warning: No good match found (using analysis data)")
                 enriched_critiques.append(related_article)
 
         # Store only related critiques with references
@@ -125,24 +212,29 @@ def generate_critique_response_outputs(triad_dir: Path, analysis_data: Dict) -> 
     response_files = list(openai_structured_dir.glob("response_*_structured.json"))
     if response_files:
         response_data = load_json_file(response_files[0])
-        total_responses = len(response_data.get('articles', []))
+        all_response_articles = response_data.get('articles', [])
+        total_responses = len(all_response_articles)
 
-        # Enrich related responses with references from structured data
+        # Use similarity-based matching for related responses
         enriched_responses = []
         for related_article in related_responses:
-            # Find matching article in structured data by title
-            matching_article = next(
-                (article for article in response_data.get('articles', [])
-                 if article.get('title') == related_article.get('title')),
-                None
-            )
-            if matching_article:
-                # Create enriched article with references
+            print(f"  Matching response: {related_article.get('title', 'N/A')[:60]}...")
+
+            # Find best match using similarity
+            best_match = find_best_match(related_article, all_response_articles)
+
+            if best_match:
+                # Calculate similarity score for logging
+                score = calculate_similarity(related_article, best_match)
+                print(f"    ✓ Found match (similarity: {score:.2f}): {best_match.get('title', 'N/A')[:60]}...")
+
+                # Create enriched article with references from best match
                 enriched_article = related_article.copy()
-                enriched_article['references'] = matching_article.get('references', [])
+                enriched_article['references'] = best_match.get('references', [])
                 enriched_responses.append(enriched_article)
             else:
-                # If no match found, keep original (shouldn't happen)
+                # Fallback to related_article if no good match found
+                print(f"    ⚠ Warning: No good match found (using analysis data)")
                 enriched_responses.append(related_article)
 
         # Store only related responses with references
@@ -207,17 +299,17 @@ def generate_summary_file(triad_dir: Path, original_data: Dict,
     response_related = critique_response_outputs.get('response_related_count', 0)
 
     # Determine quality label (prediction)
-    # First, check if the original paper itself is valid
-    original_abstract = original_data.get('abstract', '').strip()
-    original_authors = original_data.get('authors', '').strip()
-    original_sections = original_data.get('sections', {})
+    # Check if the original paper itself is valid
+    original_authors = original_data.get('authors', '')
 
-    if not original_abstract or not original_authors or not original_sections:
+    if not original_data.get('abstract', '').strip() or not original_authors.strip() or not original_data.get('sections', {}):
         quality_label = "IV"  # Invalid - original paper is broken
+        original_abstract = original_data.get('abstract', '').strip()
+        original_sections = original_data.get('sections', {})
         missing_parts = []
         if not original_abstract:
             missing_parts.append("abstract")
-        if not original_authors:
+        if not original_authors.strip():
             missing_parts.append("authors")
         if not original_sections:
             missing_parts.append("sections")

@@ -74,8 +74,8 @@ Judge by:
 
 Output JSON:
 {{
-  "related_critiques": [ {{ "title": "...", "authors": "...", "body": "...", "index": 0 }} ],
-  "related_responses": [ {{ "title": "...", "authors": "...", "body": "...", "index": 0 }} ],
+  "related_critiques": [ {{ "title": "...", "authors": "...", "index": 0 }} ],
+  "related_responses": [ {{ "title": "...", "authors": "...", "index": 0 }} ],
   "talk_to_each_other": true/false,
   "explanation": "brief explanation of the relationship",
   "flag": null or "no_related_paper_found" or "topic_mismatch"
